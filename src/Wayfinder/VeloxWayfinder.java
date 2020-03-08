@@ -8,14 +8,16 @@ import javax.swing.JFrame;
 import input.KeyManager;
 import input.MouseManager;
 
+/**
+ * Runs pre-Setup, and the actual window process.
+ * @author igtampe
+ *
+ */
 public class VeloxWayfinder {
-
-	
 	
 	//UMT
 	public static Waypoint ISector= new Waypoint("Industrial Sector",385,-1105);
 	public static Waypoint Synergia= new Waypoint("Synergia",-760, -233);
-
 
 	//--VELOX Newpond
 	public static Waypoint Kamatsu= new Waypoint("Kamatsu", 325, -349);
@@ -89,13 +91,13 @@ public class VeloxWayfinder {
 	public static Waypoint Creeksburg= new Waypoint("Creeksburg",445,-1509);
 	
 	//Connection Types
-	public static connectionType UMTRed = new connectionType("UMT Red Line", "=[R UMT]=>");
-	public static connectionType UMTGreen = new connectionType("UMT Green Line", "=[G UMT]=>");
-	public static connectionType UMTBlue = new connectionType("UMT Blue Line", "=[B UMT]=>");
-	public static connectionType LPT = new connectionType("LPT", "~[LPT]~>");
-	public static connectionType EPT = new connectionType("EPT", "-[EPT]->");
-	public static connectionType RBUS = new connectionType("North Newpond Bus System", ">-RBUS->");
-	public static connectionType LCR = new connectionType("Labcenter Rail", "))LCR->");
+	public static connectionType UMTRed = new connectionType("UMT Red Line", "=[R UMT]=>",25);      //UMT is based on NYC Metro's top speed of about 90KM/H
+	public static connectionType UMTGreen = new connectionType("UMT Green Line", "=[G UMT]=>",25); //In practice, it's executed with a teleportation system, so in theory it should be ```infinity```
+	public static connectionType UMTBlue = new connectionType("UMT Blue Line", "=[B UMT]=>",25);  //But we don't have to do that.
+	public static connectionType RBUS = new connectionType("North Newpond Bus System", ">-RBUS->",16); //Based on an average speed of 40MPH, or around 60KM/H
+	public static connectionType LPT = new connectionType("LPT", "~[LPT]~>",8); //Actual data from Minecraft Wiki
+	public static connectionType EPT = new connectionType("EPT", "-[EPT]->",8);
+	public static connectionType LCR = new connectionType("Labcenter Rail", "))LCR->",8);
 	
 	//Setup
 	public static void UMTLinks() {
@@ -240,16 +242,14 @@ public class VeloxWayfinder {
 	private static KeyManager keyManager;
 	protected static MouseManager mouseManager;
 	
-	
 	public static void main(String[] args) {
+		//Add all links
 		UMTLinks();
 		RBusLinks();
 		EPTLinks();
 		LPTLinks();
 		
-		
-		
-		
+		//Window setup
 		mainFrame.setSize(800,800);
 		mainFrame.setTitle("Velox Wayfinder");
 		
@@ -270,26 +270,14 @@ public class VeloxWayfinder {
 		mainFrame.setVisible(true);
 		
 		AlternativeRoutes.clear();
-		//route Doot=VolA.RouteTo(LC2, 15);
-		
-		//for (route a : AlternativeRoutes) {AllEyesOnMe.AddRoute(a,Color.LIGHT_GRAY,true);}
-		
-		//AllEyesOnMe.AddRoute(Doot, Color.red,true);
-		
-		
-		
 		
 		while(true) {
 			mainFrame.repaint();
 			try {Thread.sleep(1000/Framerate);} catch (InterruptedException e) {}
 			keyManager.tick();
 		}
-
 	}
 	
 	public static Dimension GetSizeOfWindow() {return mainFrame.getSize();}
 	public static int GetFramerate() {return Framerate;}
-
-	
-	
 }

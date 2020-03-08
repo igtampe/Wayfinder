@@ -15,6 +15,11 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
+/**
+ * The actual thing that renders the window.
+ * @author igtampe
+ *
+ */
 public class TheCenterOfAttention extends JComponent{
 
 	/**
@@ -278,9 +283,9 @@ public class TheCenterOfAttention extends JComponent{
 
 		//Draw the route informations if the routes are defined
 		if (ShortestRoute != null && LongestRoute != null && DefaultRoute != null && SelectedRoute==-1) {
-			Temp.drawString("Fastest Route: " + (ShortestRoute.count()-1) + " Stop(s) with a distance of around " + Math.floor(ShortestRoute.totalDistnace()) + " meters", 10, Dim.height-140);
-			Temp.drawString("Default Route: " + (DefaultRoute.count()-1) + " Stop(s) with a distance of around " + Math.floor(DefaultRoute.totalDistnace()) + " meters", 10, Dim.height-120);
-			Temp.drawString("Longest Route: " + (LongestRoute.count()-1) + " Stop(s) with a distance of around " + Math.floor(LongestRoute.totalDistnace()) + " meters", 10, Dim.height-100);			
+			Temp.drawString("Shortest Route: " + (ShortestRoute.count()-1) + " Stop(s) with a distance of around " + Math.floor(ShortestRoute.totalDistnace()) + " meters (" + Math.floor(ShortestRoute.totalTime()) + " Seconds)", 10, Dim.height-140);
+			Temp.drawString("Default Route: " + (DefaultRoute.count()-1) + " Stop(s) with a distance of around " + Math.floor(DefaultRoute.totalDistnace()) + " meters (" + Math.floor(DefaultRoute.totalTime()) + " Seconds)", 10, Dim.height-120);
+			Temp.drawString("Longest Route: " + (LongestRoute.count()-1) + " Stop(s) with a distance of around " + Math.floor(LongestRoute.totalDistnace()) + " meters (" + Math.floor(LongestRoute.totalTime()) + " Seconds)", 10, Dim.height-100);			
 		}
 
 		//If there's a selected route, lets show it

@@ -52,10 +52,7 @@ public class Waypoint {
 	private route RouteTo(Waypoint OtherWaypoint, int maxConnections, ArrayList<Waypoint> PreviousWaypoints, ArrayList<connection> PreviousConnections) {
 
 		route LeadingPossibleSolution = new route();
-
-		if (PreviousWaypoints.size()>maxConnections) {
-			return LeadingPossibleSolution;
-		}
+		if (PreviousWaypoints.size()>maxConnections) {return LeadingPossibleSolution;} //Return if we have too many connections
 		
 		//If this is the waypoint we're routing to, we're done.
 		if(this.equals(OtherWaypoint)) {
@@ -63,11 +60,9 @@ public class Waypoint {
 			VeloxWayfinder.AlternativeRoutes.add(PossibleRoute);
 			//System.out.println("(" + PossibleRoute.count() + ", "+ Math.floor(PossibleRoute.totalDistnace()) +"m) " + PossibleRoute.toString());
 			return PossibleRoute;
-			
 		}
 
 		//Add the current waypoints to the list of waypoints.
-		
 		PreviousWaypoints.add(this);
 		
 		//For each waypoint in our connected waypoints...
@@ -75,22 +70,20 @@ public class Waypoint {
 			
 			//if the current waypoint isn't in our previous waypoints (to avoid backtracking)
 			if(!PreviousWaypoints.contains(CurConnection.getWaypoint())) {
-				PreviousConnections.add(CurConnection);
+				PreviousConnections.add(CurConnection); //Add the current connection
 				
 				//Find a partial route
 				route PartialRoute = CurConnection.getWaypoint().RouteTo(OtherWaypoint, maxConnections, PreviousWaypoints, PreviousConnections);
 
-				//if the route is valid, and its shorter, make it the leading possible route.
+				//if the route is valid, and it's Shorter, make it the leading possible route.
 				if(PartialRoute.isValid() && PartialRoute.totalDistnace()<LeadingPossibleSolution.totalDistnace()) {LeadingPossibleSolution=PartialRoute;}
-
-				PreviousConnections.remove(CurConnection);
-
+				
+				PreviousConnections.remove(CurConnection); //Remove the current connection
 			}
 		}
 
 		PreviousWaypoints.remove(this);
 		return LeadingPossibleSolution;
-
 
 	}
 
