@@ -405,6 +405,7 @@ public class TheCenterOfAttention extends JComponent{
 		else {this.reset();}
 
 
+		//If we have an origin, We're drawing.
 		if (!(Origin == null)) {
 			ISDRAWING=true;
 			DrawingBegin=new Point2D.Double(mouseX,mouseY);
@@ -419,6 +420,7 @@ public class TheCenterOfAttention extends JComponent{
 		double mouseX = e.getPoint().getX()-8;
 		double mouseY = e.getPoint().getY()-27;
 
+		//If we're drawing, find if we intersect with a point.
 		if(ISDRAWING) {
 			DrawingEnd.setLocation(mouseX,mouseY);
 			Destination=null;
@@ -435,16 +437,20 @@ public class TheCenterOfAttention extends JComponent{
 	}
 
 	public void onMouseRelease(MouseEvent e){
-		ISCLICKING=false;
+		ISCLICKING=false; //We're no longer clicking
 
+		//if we were drawing...
 		if (ISDRAWING) {
 			ISDRAWING=false;
 
+			//And we do have a destination...
 			if(Destination!=null) {
-				VeloxWayfinder.AlternativeRoutes.clear();
+				VeloxWayfinder.AlternativeRoutes.clear(); //Clear alternative routes
 				
+				//Find our shortest route
 				ShortestRoute = Origin.RouteTo(Destination, MaxConnections);
 
+				//Collect all the relevant alternative routes.
 				DefaultRoute = VeloxWayfinder.AlternativeRoutes.get(0);
 				LongestRoute = VeloxWayfinder.AlternativeRoutes.get(0);
 				for (route a : VeloxWayfinder.AlternativeRoutes) {
@@ -455,6 +461,7 @@ public class TheCenterOfAttention extends JComponent{
 						if(a.totalDistnace()>LongestRoute.totalDistnace()) {LongestRoute=a;}}
 				}
 
+				//Add the routes to the screen.
 				AddRoute(LongestRoute, RouteType.Longest,true);
 				AddRoute(DefaultRoute,RouteType.Deop,true);
 				AddRoute(ShortestRoute,RouteType.Shortest,true);
@@ -467,10 +474,13 @@ public class TheCenterOfAttention extends JComponent{
 	public void onMouseMove(MouseEvent e){
 		double mouseX = e.getPoint().getX()-8;
 		double mouseY = e.getPoint().getY()-27;
+		
+		//IF we're not displaying any routes...
 		if(Allroutes.isEmpty()) {
 			hoverwaypoint=null;
 			AllPartialRoutes.clear();
 
+			//Find out if the mouse is over a point, and if so, add a partial route to show all its connections
 			for (int i = 0; i < allPoints.length; i++) {
 				CursorPos.setLocation(mouseX,mouseY);
 				Ellipse2D.Double C= GetArea(allPoints[i],VeloxWayfinder.GetSizeOfWindow());
@@ -509,6 +519,7 @@ public class TheCenterOfAttention extends JComponent{
 
 
 	public void onKeyPress(KeyEvent e) {
+		//Show all routes
 		if (e.getKeyCode()==KeyEvent.VK_PAGE_UP) {
 			AllPartialRoutes.clear();
 			for (Waypoint curway : allPoints) {
@@ -518,15 +529,17 @@ public class TheCenterOfAttention extends JComponent{
 			}
 		}
 
+		//Reset
 		if (e.getKeyCode()==KeyEvent.VK_ESCAPE) {this.reset();}
 
+		//Modify the maximum number of connections we're looking for
 		if(e.getKeyCode()==KeyEvent.VK_DOWN && MaxConnections!=10) {MaxConnections--;}
 		if(e.getKeyCode()==KeyEvent.VK_UP && MaxConnections!=80) {MaxConnections++;}
 		
-		if (e.getKeyCode()==KeyEvent.VK_PAGE_DOWN) {
-			togglePrimaryRouteVisibility();
-		}
+		//Toggle the visibility of all routes being displayed
+		if (e.getKeyCode()==KeyEvent.VK_PAGE_DOWN) {togglePrimaryRouteVisibility();}
 
+		//Go through each route
 		if (e.getKeyCode()==KeyEvent.VK_LEFT) {
 
 			displayAllRoutes(false);
@@ -537,6 +550,7 @@ public class TheCenterOfAttention extends JComponent{
 			if (SelectedRoute!=-1 && !Allroutes.isEmpty()) {Allroutes.get(SelectedRoute).SetDraw(true);} else {setPrimaryRouteVisibility(true);}
 
 		}
+		
 		if (e.getKeyCode()==KeyEvent.VK_RIGHT) {
 
 			displayAllRoutes(false);
