@@ -260,6 +260,7 @@ public class VeloxWayfinder {
         mainFrame.addKeyListener(keyManager);
         mainFrame.addMouseListener(mouseManager);
         mainFrame.addMouseMotionListener(mouseManager);
+        mainFrame.addMouseWheelListener(mouseManager);
 		
 		TheCenterOfAttention AllEyesOnMe=new TheCenterOfAttention(allPoints);
 

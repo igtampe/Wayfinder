@@ -1,6 +1,8 @@
 package Wayfinder;
 import javax.swing.JComponent;
 
+import input.Window;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,6 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -20,7 +23,11 @@ import java.util.ArrayList;
  * @author igtampe
  *
  */
-public class TheCenterOfAttention extends JComponent{
+public class TheCenterOfAttention extends JComponent implements Window{
+
+	private static double scale = .2;
+	private static int xPan = 0;
+	private static int yPan = 0;
 
 	/**
 	 * A drawable route
@@ -176,15 +183,17 @@ public class TheCenterOfAttention extends JComponent{
 
 	public static Boolean ISCLICKING=false;
 	public static Boolean ISDRAWING=false;
+	public static Boolean ISDRAGGING=false;
 	public static Point2D.Double DrawingBegin;
 	public static Point2D.Double DrawingEnd;
 	public static Point2D.Double CursorPos;
+	public static Point2D.Double DragBegin;
 	public static Waypoint Origin;
 	public static Waypoint Destination;
 	private static Waypoint[] allPoints;
 	private static ArrayList<drawableRoute> Allroutes;
 	private static ArrayList<drawablePartialRoute> AllPartialRoutes;
-	
+
 	private static int MaxConnections=13;
 
 	//Special routes
@@ -238,7 +247,7 @@ public class TheCenterOfAttention extends JComponent{
 		g.setColor(Color.black);
 
 		//Draw all waypoints
-		for (Waypoint waypoint : allPoints) {drawWaypoint(g, waypoint,Dim);}
+		for (Waypoint waypoint : allPoints) {drawWaypoint(g, waypoint);}
 
 		//Draw a small tiny cursor
 		g.setColor(Color.red);
@@ -265,20 +274,20 @@ public class TheCenterOfAttention extends JComponent{
 		//Draw the header of the footer
 		Temp.setFont(HeaderFont);
 		Temp.setColor(Color.WHITE);
-		
+
 		//If we're hovering over a point, display its info
 		if (hoverwaypoint!=null) {HeaderText= hoverwaypoint.getName() + " (" + hoverwaypoint.getPos().x + ", " +  hoverwaypoint.getPos().y + ")";}
 
 		//If we're not routing to anywhere at the moment, use the default header
 		else if (Origin == null || Destination == null) {HeaderText="Velox Wayfinder";}
-		
+
 		//If we *are* routing somewhere, display the origin and destination
 		else {HeaderText=Origin.getName() + " to " + Destination.getName();}
 
 		//Draw the coso
 		Temp.drawString(HeaderText, 10, Dim.height-178);
 
-		
+
 		Temp.setFont(RouteFont);
 
 		//Draw the route informations if the routes are defined
@@ -339,7 +348,7 @@ public class TheCenterOfAttention extends JComponent{
 		ShortestRoute=null;
 		LongestRoute=null;
 		DefaultRoute=null;
-		Origin=null;
+		//Origin=null;
 		Destination=null;
 
 	}
@@ -350,17 +359,16 @@ public class TheCenterOfAttention extends JComponent{
 	 * @return A point that's visible on the window
 	 */
 	public Point2D.Double ConvertPoint(Point2D.Double AAA){
-		Dimension Dim=VeloxWayfinder.GetSizeOfWindow();
-		return new Point2D.Double((AAA.x+1000)*(Dim.width/2900.0),((AAA.y+1600)*((Dim.height-200)/3500.0)));
+		return new Point2D.Double((AAA.x+(xPan+(8000.0*scale)))*(scale),(AAA.y+(yPan+(8000.0*scale)))*(scale));
 	}
 
 
-	public Ellipse2D.Double GetCircle(Waypoint Way, Dimension Dim){
+	public Ellipse2D.Double GetCircle(Waypoint Way){
 		Point2D.Double Center = ConvertPoint(Way.getPos());
 		return new Ellipse2D.Double(Center.x,Center.y,5,5);
 	}
 
-	public Ellipse2D.Double GetArea(Waypoint Way, Dimension Dim){
+	public Ellipse2D.Double GetArea(Waypoint Way){
 		Point2D.Double Center = ConvertPoint(Way.getPos());
 		return new Ellipse2D.Double(Center.x-5,Center.y-5,5+10,5+10);
 	}
@@ -371,45 +379,44 @@ public class TheCenterOfAttention extends JComponent{
 	 * @param Way Waypoint to draw
 	 * @param Dim Dimension of the window
 	 */
-	public void drawWaypoint(Graphics g, Waypoint Way, Dimension Dim) {
+	public void drawWaypoint(Graphics g, Waypoint Way) {
 		//Translate the point.
 		Point2D.Double Center = ConvertPoint(Way.getPos());
 
 		Graphics2D haha = (Graphics2D) g;
-		haha.fill(GetCircle(Way,Dim));
+		haha.fill(GetCircle(Way));
 		if(Way.isDrawn()) {haha.drawString(Way.getName(), (int) Center.x+10, (int) Center.y+10);}
+		//else {haha.drawString(Way.getPos()+ ", " + Center, (int) Center.x+10, (int) Center.y+10);}
 	}
 
-	//INPUT COSOS
-	
-	
+	//INPUT----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 	public void onMousePressed(MouseEvent e) {
 		ISCLICKING=true;
 		hoverwaypoint=null;
-		Destination=null;
 		AllPartialRoutes.clear();
 
 		double mouseX = e.getPoint().getX()-8;
 		double mouseY = e.getPoint().getY()-27;
 
-		Origin=null;
-
-		//find out if we're clicking on a point
-		if(Allroutes.isEmpty()) {
-			for (int i = 0; i < allPoints.length; i++) {
-				CursorPos.setLocation(mouseX,mouseY);
-				Ellipse2D.Double C= GetArea(allPoints[i],VeloxWayfinder.GetSizeOfWindow());
-				if(C.contains(mouseX,mouseY)) Origin=allPoints[i];
-			}
+		Waypoint FindOrigin=null;
+		for (int i = 0; i < allPoints.length; i++) {
+			CursorPos.setLocation(mouseX,mouseY);
+			Ellipse2D.Double C= GetArea(allPoints[i]);
+			if(C.contains(mouseX,mouseY)) FindOrigin=allPoints[i];
 		}
-		else {this.reset();}
-
 
 		//If we have an origin, We're drawing.
-		if (!(Origin == null)) {
+		if (!(FindOrigin == null)) {
+			Origin=FindOrigin;
+			this.reset();
 			ISDRAWING=true;
 			DrawingBegin=new Point2D.Double(mouseX,mouseY);
 			DrawingEnd=new Point2D.Double(mouseX,mouseY);
+		}else {
+			ISDRAGGING=true;
+			DragBegin=new Point2D.Double(mouseX, mouseY);
 		}
 
 
@@ -428,17 +435,25 @@ public class TheCenterOfAttention extends JComponent{
 			if(Allroutes.isEmpty()) {
 				for (int i = 0; i < allPoints.length; i++) {
 					CursorPos.setLocation(mouseX,mouseY);
-					Ellipse2D.Double C= GetArea(allPoints[i],VeloxWayfinder.GetSizeOfWindow());
+					Ellipse2D.Double C= GetArea(allPoints[i]);
 					allPoints[i].setDrawn(C.contains(mouseX,mouseY));
 					if (allPoints[i].isDrawn()) {Destination=allPoints[i];}
 				}
 			}
-			Origin.setDrawn(true);}
+			Origin.setDrawn(true);
+		}
+		
+		if(ISDRAGGING) {
+			xPan += (int)(-DragBegin.x+mouseX)*(1.0/scale);
+			yPan += (int)(-DragBegin.y+mouseY)*(1.0/scale);
+			DragBegin.setLocation(mouseX, mouseY);
+		}
 	}
 
 	public void onMouseRelease(MouseEvent e){
 		ISCLICKING=false; //We're no longer clicking
-
+		ISDRAGGING=false; //Whether we were or weren't before, we're no longer dragging
+		
 		//if we were drawing...
 		if (ISDRAWING) {
 			ISDRAWING=false;
@@ -446,7 +461,7 @@ public class TheCenterOfAttention extends JComponent{
 			//And we do have a destination...
 			if(Destination!=null) {
 				VeloxWayfinder.AlternativeRoutes.clear(); //Clear alternative routes
-				
+
 				//Find our shortest route
 				ShortestRoute = Origin.RouteTo(Destination, MaxConnections);
 
@@ -474,7 +489,8 @@ public class TheCenterOfAttention extends JComponent{
 	public void onMouseMove(MouseEvent e){
 		double mouseX = e.getPoint().getX()-8;
 		double mouseY = e.getPoint().getY()-27;
-		
+		CursorPos.setLocation(mouseX,mouseY);
+
 		//IF we're not displaying any routes...
 		if(Allroutes.isEmpty()) {
 			hoverwaypoint=null;
@@ -482,14 +498,11 @@ public class TheCenterOfAttention extends JComponent{
 
 			//Find out if the mouse is over a point, and if so, add a partial route to show all its connections
 			for (int i = 0; i < allPoints.length; i++) {
-				CursorPos.setLocation(mouseX,mouseY);
-				Ellipse2D.Double C= GetArea(allPoints[i],VeloxWayfinder.GetSizeOfWindow());
+				Ellipse2D.Double C= GetArea(allPoints[i]);
 				allPoints[i].setDrawn(C.contains(mouseX,mouseY));
 				if (C.contains(mouseX,mouseY)) {
 					hoverwaypoint=allPoints[i];
-					for (connection curcon : hoverwaypoint.getConnections()) {
-						AllPartialRoutes.add(new drawablePartialRoute(hoverwaypoint, curcon));
-					}
+					for (connection curcon : hoverwaypoint.getConnections()) {AllPartialRoutes.add(new drawablePartialRoute(hoverwaypoint, curcon));}
 				}
 			}
 		}
@@ -535,7 +548,7 @@ public class TheCenterOfAttention extends JComponent{
 		//Modify the maximum number of connections we're looking for
 		if(e.getKeyCode()==KeyEvent.VK_DOWN && MaxConnections!=10) {MaxConnections--;}
 		if(e.getKeyCode()==KeyEvent.VK_UP && MaxConnections!=80) {MaxConnections++;}
-		
+
 		//Toggle the visibility of all routes being displayed
 		if (e.getKeyCode()==KeyEvent.VK_PAGE_DOWN) {togglePrimaryRouteVisibility();}
 
@@ -550,7 +563,7 @@ public class TheCenterOfAttention extends JComponent{
 			if (SelectedRoute!=-1 && !Allroutes.isEmpty()) {Allroutes.get(SelectedRoute).SetDraw(true);} else {setPrimaryRouteVisibility(true);}
 
 		}
-		
+
 		if (e.getKeyCode()==KeyEvent.VK_RIGHT) {
 
 			displayAllRoutes(false);
@@ -561,6 +574,23 @@ public class TheCenterOfAttention extends JComponent{
 			if (SelectedRoute!=-1 && !Allroutes.isEmpty()) {Allroutes.get(SelectedRoute).SetDraw(true);} else {setPrimaryRouteVisibility(true);}
 
 		}
+	}
+
+
+	public void onMouseEntered(MouseEvent e) {}
+	public void onMouseExited(MouseEvent e) {}
+
+	@Override
+	public void onMouseWheelMove(MouseWheelEvent e) {
+		double scaleDiff=scale;
+		scale+=(e.getPreciseWheelRotation())*0.001;
+		scaleDiff-=scale;
+		
+		//calculate offset
+		xPan+=(int)(e.getPoint().x*scaleDiff);
+		yPan+=(int)(e.getPoint().y*scaleDiff);
+		
+		
 	}
 
 }
