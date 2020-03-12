@@ -10,7 +10,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -183,7 +182,6 @@ public class TheCenterOfAttention extends JComponent implements Window{
 	private static Waypoint[] allPoints;
 	private static ArrayList<drawableRoute> Allroutes;
 	private static ArrayList<drawablePartialRoute> AllPartialRoutes;
-	private static ArrayList<Shape> AllShapes;
 
 	private static int MaxConnections=13;
 	private static double scale = .2;

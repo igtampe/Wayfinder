@@ -6,8 +6,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import Wayfinder.TheCenterOfAttention;
-
 /**
  * Created by AlexVR on 7/1/2018.
  * Suplemented by Chopo on 3/11/2020
