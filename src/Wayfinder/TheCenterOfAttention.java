@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -24,11 +25,7 @@ import java.util.ArrayList;
  *
  */
 public class TheCenterOfAttention extends JComponent implements Window{
-
-	private static double scale = .2;
-	private static int xPan = 0;
-	private static int yPan = 0;
-
+	
 	/**
 	 * A drawable route
 	 * @author igtampe
@@ -132,7 +129,6 @@ public class TheCenterOfAttention extends JComponent implements Window{
 			}
 		}
 	}
-
 	private class drawablePartialRoute extends drawableRoute{
 
 		private Waypoint FROM;
@@ -144,9 +140,7 @@ public class TheCenterOfAttention extends JComponent implements Window{
 			super.Draw=true;
 		}
 
-		@Override
 		public void SetDraw(boolean D) {
-
 			if(super.Draw && !D) {
 				FROM.setDrawn(false);
 				VIA.getWaypoint().setDrawn(false);
@@ -173,14 +167,10 @@ public class TheCenterOfAttention extends JComponent implements Window{
 				g.setColor(Color.LIGHT_GRAY);
 
 				g.drawLine((int) Point1.x+5, (int) Point1.y+5, (int) Point2.x+5, (int) Point2.y+5);
-
-
 			}
-
-
 		}
 	}
-
+	
 	public static Boolean ISCLICKING=false;
 	public static Boolean ISDRAWING=false;
 	public static Boolean ISDRAGGING=false;
@@ -193,9 +183,13 @@ public class TheCenterOfAttention extends JComponent implements Window{
 	private static Waypoint[] allPoints;
 	private static ArrayList<drawableRoute> Allroutes;
 	private static ArrayList<drawablePartialRoute> AllPartialRoutes;
+	private static ArrayList<Shape> AllShapes;
 
 	private static int MaxConnections=13;
-
+	private static double scale = .2;
+	private static int xPan = 0;
+	private static int yPan = 0;
+	
 	//Special routes
 	private static route ShortestRoute;
 	private static route LongestRoute;
@@ -222,10 +216,16 @@ public class TheCenterOfAttention extends JComponent implements Window{
 	/**
 	 * ENUM of route types
 	 * @author igtampe
-	 *
 	 */
 	public static enum RouteType{Fastest,Shortest,Longest,Deop,Alternate,Other}
 
+	/**
+	 * Enum of Fill Types
+	 * @author igtampe
+	 */
+	public static enum DrawType{Fill, Outline}
+	
+	
 	public TheCenterOfAttention(Waypoint[] Help) {
 		allPoints=Help;
 		Allroutes=new ArrayList<drawableRoute>();
@@ -233,6 +233,8 @@ public class TheCenterOfAttention extends JComponent implements Window{
 		CursorPos=new Point2D.Double(0,0);
 	}
 
+	
+	
 
 	public void paintComponent(Graphics g) {
 
@@ -359,7 +361,7 @@ public class TheCenterOfAttention extends JComponent implements Window{
 	 * @return A point that's visible on the window
 	 */
 	public Point2D.Double ConvertPoint(Point2D.Double AAA){
-		return new Point2D.Double((AAA.x+(xPan+(8000.0*scale)))*(scale),(AAA.y+(yPan+(8000.0*scale)))*(scale));
+		return new Point2D.Double((AAA.x+((8000.0*scale))+xPan)*(scale),(AAA.y+((8000.0*scale))+yPan)*(scale));
 	}
 
 
@@ -582,14 +584,33 @@ public class TheCenterOfAttention extends JComponent implements Window{
 
 	@Override
 	public void onMouseWheelMove(MouseWheelEvent e) {
-		double scaleDiff=scale;
-		scale+=(e.getPreciseWheelRotation())*0.001;
-		scaleDiff-=scale;
-		
+		Point2D.Double OrigConvertedPoint=ConvertPoint(new Point2D.Double(e.getPoint().getX(),e.getPoint().getY()));
+		double origScale=scale;
+		scale+=(e.getPreciseWheelRotation())*(0.1*scale);
+		if(scale<=0) {scale=origScale; return;}
+		Point2D.Double NewConvertedPoint=ConvertPoint(new Point2D.Double(e.getPoint().getX(),e.getPoint().getY()));
+
 		//calculate offset
-		xPan+=(int)(e.getPoint().x*scaleDiff);
-		yPan+=(int)(e.getPoint().y*scaleDiff);
+		//We basically have to calculate how to make the new Mouse's converted position the same as the old one's converted position.
 		
+		//(AAA.x+((8000.0*scale))+xPan)*(scale)
+		
+		xPan+=(int)invertPointDifference(OrigConvertedPoint.getX()-NewConvertedPoint.getX(),"x");
+		yPan+=(int)invertPointDifference(OrigConvertedPoint.getY()-NewConvertedPoint.getY(),"y");
+		
+	}
+	
+	private double invertPointDifference(double diff, String Dim) {
+		//(AAA.x+((8000.0*scale))+xPan)*(scale)
+		//Divide by scale
+		//AAA.x+((8000.0*scale))+xPan
+		//Substract XPan and 8000*scale and you get AAA.x
+		switch (Dim.toUpperCase()) {
+		case "X":
+			return (diff/scale);
+		default:
+			return (diff/scale);
+		}
 		
 	}
 
