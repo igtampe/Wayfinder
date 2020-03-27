@@ -584,7 +584,7 @@ public class TheCenterOfAttention extends JComponent implements Window{
 	public void onMouseWheelMove(MouseWheelEvent e) {
 		Point2D.Double OrigConvertedPoint=ConvertPoint(new Point2D.Double(e.getPoint().getX(),e.getPoint().getY()));
 		double origScale=scale;
-		scale+=(e.getPreciseWheelRotation())*(0.1*scale);
+		scale-=(e.getPreciseWheelRotation())*(0.1*scale); //flip direction
 		if(scale<=0) {scale=origScale; return;}
 		Point2D.Double NewConvertedPoint=ConvertPoint(new Point2D.Double(e.getPoint().getX(),e.getPoint().getY()));
 
