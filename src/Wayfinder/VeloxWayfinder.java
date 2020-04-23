@@ -141,7 +141,7 @@ public class VeloxWayfinder {
 		VolRedLineLinks();
 	}
 	public static void VolRedLineLinks() {
-		Newpond.Add(VolA, EPT);
+		//Newpond.Add(VolA, EPT); //this conection was actually removed!
 		VolA.Add(VolB, LPT);
 		VolB.Add(VolC1,LPT);
 		VolC1.Add(VolC2, LPT);
