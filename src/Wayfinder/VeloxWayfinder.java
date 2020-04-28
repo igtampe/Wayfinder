@@ -89,6 +89,8 @@ public class VeloxWayfinder {
 	public static Waypoint RWest= new Waypoint("Riverdane West",-58,-1243);
 	public static Waypoint RFarms= new Waypoint("Riverdane Farms",-378,-1267);
 	public static Waypoint Creeksburg= new Waypoint("Creeksburg",445,-1509);
+	public static Waypoint OColesbrook = new Waypoint("Outer Colesbrook", 688, -472);
+	public static Waypoint IColesbrook = new Waypoint("Inner Colesbrook",1247,-758);
 	
 	//Connection Types
 	public static connectionType UMTRed = new connectionType("UMT Red Line", "=[R UMT]=>",25);      //UMT is based on NYC Metro's top speed of about 90KM/H
@@ -129,10 +131,15 @@ public class VeloxWayfinder {
 	}
 	public static void RBusLinks() {
 		ISector.Link(RBeltway, RBUS);
+		ISector.Link(OColesbrook,RBUS);
 		RBeltway.Link(RCentral, RBUS);
 		RCentral.Link(Creeksburg, RBUS);
 		RCentral.Link(RWest, RBUS);
 		RWest.Link(RFarms, RBUS);
+		Creeksburg.Link(IColesbrook, RBUS);
+		IColesbrook.Link(OColesbrook, RBUS);
+		
+		
 	}
 	public static void EPTLinks() {
 		Kamatsu.Link(Newpond, EPT);
@@ -232,7 +239,7 @@ public class VeloxWayfinder {
 	}
 	
 	//final bits
-	public static Waypoint[] allPoints= {ISector,Synergia,Kamatsu,Sumus,Kaigi,MSprings,Cocoa,FTMotor,TIPS,ISSS,Verde,FourPoints,UMSNB,Manabus,ManabNorth,ManabSouth,Volucris,VolE,VolD,VolC3,VolC2,VolC1,VolB,VolA,Newpond,Burb,Treelife,Urbia,SouthUrbia,SWUrbia,Pianura,PianuraS,LC1,LC2,LC3,Suburbia,NCouncil,MoM,SouthSuburbia,PNW,PNE,PSW,PS,PSE,Paradisus,Mercatum,Domum,LFSW,LFSE,LSW,LSE,Laertes,LNW,LNE,LFNW,LFNE,RBeltway,RCentral,RWest,RFarms,Creeksburg};
+	public static Waypoint[] allPoints= {ISector,Synergia,Kamatsu,Sumus,Kaigi,MSprings,Cocoa,FTMotor,TIPS,ISSS,Verde,FourPoints,UMSNB,Manabus,ManabNorth,ManabSouth,Volucris,VolE,VolD,VolC3,VolC2,VolC1,VolB,VolA,Newpond,Burb,Treelife,Urbia,SouthUrbia,SWUrbia,Pianura,PianuraS,LC1,LC2,LC3,Suburbia,NCouncil,MoM,SouthSuburbia,PNW,PNE,PSW,PS,PSE,Paradisus,Mercatum,Domum,LFSW,LFSE,LSW,LSE,Laertes,LNW,LNE,LFNW,LFNE,RBeltway,RCentral,RWest,RFarms,Creeksburg,IColesbrook,OColesbrook};
 	public static TheCenterOfAttention AllEyesOnMe = new TheCenterOfAttention(allPoints);
 	public static ArrayList<route> AlternativeRoutes = new ArrayList<route>();
 	
